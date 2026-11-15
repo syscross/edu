@@ -14,62 +14,48 @@
       box-sizing: border-box;
     }
     .edu-px-body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      padding: 20px 16px;
-    }
-    .edu-px-grid {
       display: grid;
-      grid-template-columns: repeat(5, 32px);
-      grid-template-rows: repeat(5, 32px);
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      padding: 18px 16px;
+    }
+    .edu-px-panel {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 4px;
       padding: 8px;
       background: #0d1117;
       border: 1px solid #30363d;
       border-radius: 10px;
+      box-sizing: border-box;
     }
-    .edu-px-cell {
-      width: 32px;
-      height: 32px;
+    .edu-px-cell,
+    .edu-px-bit {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      padding: 0;
       border: 1px solid #30363d;
       border-radius: 5px;
-      background: #161b22;
       cursor: pointer;
       touch-action: manipulation;
-      transition: background-color 0.12s ease, border-color 0.12s ease;
+      transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+    }
+    .edu-px-cell {
+      background: #161b22;
     }
     .edu-px-cell.is-on {
       background: #f0f6fc;
       border-color: #f0f6fc;
     }
-    .edu-px-bits {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      font-family: "Noto Sans Mono", ui-monospace, monospace;
-      font-size: 16px;
-      font-weight: 700;
-    }
-    .edu-px-row {
-      display: flex;
-      gap: 5px;
-      align-items: center;
-      height: 30px;
-    }
     .edu-px-bit {
-      width: 24px;
-      height: 28px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 6px;
-      background: #0d1117;
-      border: 1px solid #30363d;
+      background: #161b22;
       color: #8b949e;
-      cursor: pointer;
-      touch-action: manipulation;
+      font-family: "Noto Sans Mono", ui-monospace, monospace;
+      font-size: 15px;
+      font-weight: 700;
     }
     .edu-px-bit.is-on {
       background: #132c4e;
@@ -107,27 +93,15 @@
     }
     @media (max-width: 420px) {
       .edu-px-body {
-        gap: 12px;
-        padding: 16px 10px;
+        gap: 10px;
+        padding: 14px 12px;
       }
-      .edu-px-grid {
-        grid-template-columns: repeat(5, 26px);
-        grid-template-rows: repeat(5, 26px);
+      .edu-px-panel {
         gap: 3px;
         padding: 6px;
       }
-      .edu-px-cell {
-        width: 26px;
-        height: 26px;
-      }
-      .edu-px-row {
-        gap: 4px;
-        height: 25px;
-      }
       .edu-px-bit {
-        width: 20px;
-        height: 24px;
-        font-size: 14px;
+        font-size: 13px;
       }
     }
   `;
@@ -162,17 +136,15 @@
     body.className = "edu-px-body";
 
     const grid = document.createElement("div");
-    grid.className = "edu-px-grid";
+    grid.className = "edu-px-panel";
 
     const bitsWrap = document.createElement("div");
-    bitsWrap.className = "edu-px-bits";
+    bitsWrap.className = "edu-px-panel";
 
     const cellEls = [];
     const bitEls = [];
 
     for (let r = 0; r < SIZE; r++) {
-      const rowEl = document.createElement("div");
-      rowEl.className = "edu-px-row";
       for (let c = 0; c < SIZE; c++) {
         const idx = r * SIZE + c;
 
@@ -194,11 +166,10 @@
         bit.addEventListener("click", toggle);
 
         grid.appendChild(cell);
-        rowEl.appendChild(bit);
+        bitsWrap.appendChild(bit);
         cellEls.push(cell);
         bitEls.push(bit);
       }
-      bitsWrap.appendChild(rowEl);
     }
 
     body.append(grid, bitsWrap);
