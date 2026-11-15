@@ -113,27 +113,33 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 10px 14px;
       padding: 10px 14px;
       border-top: 1px solid #21262d;
       background: #0d1117;
       flex-wrap: wrap;
     }
+    .edu-gpt-sliders {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
     .edu-gpt-temp {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       font-size: 12px;
       color: #8b949e;
     }
     .edu-gpt-temp input {
-      width: 90px;
+      width: 78px;
       accent-color: #58a6ff;
     }
     .edu-gpt-temp-val {
       font-family: "Noto Sans Mono", ui-monospace, monospace;
       color: #f0f6fc;
-      min-width: 28px;
+      min-width: 26px;
     }
     .edu-gpt-btns {
       display: flex;
@@ -365,7 +371,7 @@
     "Once upon a",
     "The little dog wanted to",
     "She was very",
-    "He ate a red",
+    "They lived happily",
   ];
 
   function initWidget(root) {
@@ -411,27 +417,45 @@
     const controls = document.createElement("div");
     controls.className = "edu-gpt-controls";
 
+    const slidersWrap = document.createElement("div");
+    slidersWrap.className = "edu-gpt-sliders";
+
     const tempWrap = document.createElement("label");
     tempWrap.className = "edu-gpt-temp";
     tempWrap.innerHTML = `<span>창의성</span><input type="range" min="0.2" max="1.5" step="0.1" value="0.7"><span class="edu-gpt-temp-val">0.7</span>`;
     const tempInput = tempWrap.querySelector("input");
     const tempVal = tempWrap.querySelector(".edu-gpt-temp-val");
 
+    const speedWrap = document.createElement("label");
+    speedWrap.className = "edu-gpt-temp";
+    speedWrap.innerHTML = `<span>속도</span><input type="range" min="1" max="5" step="1" value="3"><span class="edu-gpt-temp-val">3x</span>`;
+    const speedInput = speedWrap.querySelector("input");
+    const speedVal = speedWrap.querySelector(".edu-gpt-temp-val");
+
+    slidersWrap.append(tempWrap, speedWrap);
+
     const btnsWrap = document.createElement("div");
     btnsWrap.className = "edu-gpt-btns";
-    const genBtn = document.createElement("button");
-    genBtn.type = "button";
-    genBtn.className = "edu-gpt-btn is-primary";
-    genBtn.textContent = "자동 이어쓰기";
-    genBtn.disabled = true;
+
+    const stepBtn = document.createElement("button");
+    stepBtn.type = "button";
+    stepBtn.className = "edu-gpt-btn is-primary";
+    stepBtn.textContent = "생성";
+    stepBtn.disabled = true;
+
+    const autoBtn = document.createElement("button");
+    autoBtn.type = "button";
+    autoBtn.className = "edu-gpt-btn is-primary";
+    autoBtn.textContent = "자동";
+    autoBtn.disabled = true;
 
     const resetBtn = document.createElement("button");
     resetBtn.type = "button";
     resetBtn.className = "edu-gpt-btn";
     resetBtn.textContent = "초기화";
 
-    btnsWrap.append(genBtn, resetBtn);
-    controls.append(tempWrap, btnsWrap);
+    btnsWrap.append(stepBtn, autoBtn, resetBtn);
+    controls.append(slidersWrap, btnsWrap);
 
     stage.append(presetsWrap, inputWrap, probsWrap, controls);
     root.appendChild(stage);
@@ -458,10 +482,32 @@
 
     function stopAuto() {
       if (autoTimer) {
-        clearInterval(autoTimer);
+        clearTimeout(autoTimer);
         autoTimer = null;
-        genBtn.textContent = "자동 이어쓰기";
+        autoBtn.textContent = "자동";
       }
+    }
+
+    function getSpeedMs() {
+      return 650 - Number(speedInput.value) * 110;
+    }
+
+    function stepOnce() {
+      if (!model) return null;
+      const probs = updatePredictions();
+      let r = Math.random();
+      let chosen = 1;
+      for (let i = 1; i < probs.length; i++) {
+        r -= probs[i];
+        if (r <= 0) {
+          chosen = i;
+          break;
+        }
+      }
+      const tok = model.vocab[chosen];
+      textarea.value = appendToken(textarea.value, tok);
+      updatePredictions();
+      return tok;
     }
 
     function updatePredictions() {
@@ -508,44 +554,51 @@
       updatePredictions();
     });
 
+    speedInput.addEventListener("input", () => {
+      speedVal.textContent = `${speedInput.value}x`;
+    });
+
     resetBtn.addEventListener("click", () => {
       stopAuto();
+      tempInput.value = "0.7";
+      tempVal.textContent = "0.7";
+      speedInput.value = "3";
+      speedVal.textContent = "3x";
       textarea.value = currentPreset;
       updatePredictions();
     });
 
-    genBtn.addEventListener("click", () => {
+    stepBtn.addEventListener("click", () => {
+      if (!model) return;
+      stopAuto();
+      stepOnce();
+    });
+
+    autoBtn.addEventListener("click", () => {
       if (!model) return;
       if (autoTimer) {
         stopAuto();
         return;
       }
       let steps = 0;
-      genBtn.textContent = "멈추기";
-      autoTimer = setInterval(() => {
-        const probs = updatePredictions();
-        let r = Math.random();
-        let chosen = 1;
-        for (let i = 1; i < probs.length; i++) {
-          r -= probs[i];
-          if (r <= 0) {
-            chosen = i;
-            break;
-          }
-        }
-        const tok = model.vocab[chosen];
-        textarea.value = appendToken(textarea.value, tok);
-        updatePredictions();
+      autoBtn.textContent = "멈추기";
+      const tick = () => {
+        if (!autoTimer) return;
+        stepOnce();
         steps++;
-        if (steps >= 14 || tok === "." || tok === "!" || tok === "?") {
+        if (steps >= 60) {
           stopAuto();
+          return;
         }
-      }, 220);
+        autoTimer = setTimeout(tick, getSpeedMs());
+      };
+      autoTimer = setTimeout(tick, 0);
     });
 
     loadModel().then((m) => {
       model = m;
-      genBtn.disabled = false;
+      stepBtn.disabled = false;
+      autoBtn.disabled = false;
       updatePredictions();
     });
   }
