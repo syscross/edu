@@ -17,13 +17,13 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 24px;
+      gap: 20px;
       padding: 20px 16px;
     }
     .edu-px-grid {
       display: grid;
-      grid-template-columns: repeat(4, 38px);
-      grid-template-rows: repeat(4, 38px);
+      grid-template-columns: repeat(5, 32px);
+      grid-template-rows: repeat(5, 32px);
       gap: 4px;
       padding: 8px;
       background: #0d1117;
@@ -31,10 +31,10 @@
       border-radius: 10px;
     }
     .edu-px-cell {
-      width: 38px;
-      height: 38px;
+      width: 32px;
+      height: 32px;
       border: 1px solid #30363d;
-      border-radius: 6px;
+      border-radius: 5px;
       background: #161b22;
       cursor: pointer;
       touch-action: manipulation;
@@ -47,20 +47,20 @@
     .edu-px-bits {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       font-family: "Noto Sans Mono", ui-monospace, monospace;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
     }
     .edu-px-row {
       display: flex;
-      gap: 6px;
+      gap: 5px;
       align-items: center;
-      height: 34px;
+      height: 30px;
     }
     .edu-px-bit {
-      width: 26px;
-      height: 30px;
+      width: 24px;
+      height: 28px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -105,23 +105,29 @@
       border-color: #58a6ff;
       color: #f0f6fc;
     }
-    @media (max-width: 400px) {
+    @media (max-width: 420px) {
       .edu-px-body {
-        gap: 14px;
+        gap: 12px;
         padding: 16px 10px;
       }
       .edu-px-grid {
-        grid-template-columns: repeat(4, 32px);
-        grid-template-rows: repeat(4, 32px);
+        grid-template-columns: repeat(5, 26px);
+        grid-template-rows: repeat(5, 26px);
+        gap: 3px;
+        padding: 6px;
       }
       .edu-px-cell {
-        width: 32px;
-        height: 32px;
+        width: 26px;
+        height: 26px;
+      }
+      .edu-px-row {
+        gap: 4px;
+        height: 25px;
       }
       .edu-px-bit {
-        width: 22px;
-        height: 26px;
-        font-size: 15px;
+        width: 20px;
+        height: 24px;
+        font-size: 14px;
       }
     }
   `;
@@ -133,12 +139,14 @@
     document.head.appendChild(style);
   }
 
-  // 기본 4x4 스마일 패턴
+  // 기본 5x5 A 모양 패턴
+  const SIZE = 5;
   const DEFAULT_PATTERN = [
-    0, 1, 1, 0,
-    0, 0, 0, 0,
-    1, 0, 0, 1,
-    0, 1, 1, 0,
+    0, 1, 1, 1, 0,
+    1, 0, 0, 0, 1,
+    1, 1, 1, 1, 1,
+    1, 0, 0, 0, 1,
+    1, 0, 0, 0, 1,
   ];
 
   function initWidget(root) {
@@ -162,11 +170,11 @@
     const cellEls = [];
     const bitEls = [];
 
-    for (let r = 0; r < 4; r++) {
+    for (let r = 0; r < SIZE; r++) {
       const rowEl = document.createElement("div");
       rowEl.className = "edu-px-row";
-      for (let c = 0; c < 4; c++) {
-        const idx = r * 4 + c;
+      for (let c = 0; c < SIZE; c++) {
+        const idx = r * SIZE + c;
 
         const cell = document.createElement("button");
         cell.type = "button";
