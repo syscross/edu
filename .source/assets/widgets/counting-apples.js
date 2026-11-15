@@ -199,78 +199,139 @@
       ctx.save();
       ctx.translate(cx, cy);
 
-      // 오른쪽에서 뻗어 나오는 팔/소매 (바구니 손과 같은 고객)
+      const skin = "#f5caa4";
+      const skinDark = "#e0ad82";
+      const outline = "#9c6b45";
+
+      // 오른쪽 아래에서 부드럽게 올라오는 팔/소매
+      ctx.save();
+      ctx.rotate(-0.14);
       ctx.fillStyle = "#388bfd";
       ctx.beginPath();
-      ctx.roundRect(22, -11, W - cx + 120, 32, 16);
+      ctx.roundRect(22, -14, W - cx + 140, 32, 16);
       ctx.fill();
 
       // 소매 커프스
       ctx.fillStyle = "#f0f6fc";
-      ctx.fillRect(18, -12, 9, 34);
-
-      // 손바닥 (손가락을 위로 펴는 정면 형태)
-      const skin = "#f2c6a0";
-      const skinShade = "#dfb088";
-      ctx.fillStyle = skin;
       ctx.beginPath();
-      ctx.roundRect(-27, -18, 54, 42, 16);
+      ctx.roundRect(17, -15, 10, 34, 4);
       ctx.fill();
+      ctx.restore();
 
-      // 펴진 손가락 (위로 뻗음):
-      // 1: 검지, 2: 검지·중지, 3: 검지·중지·약지, 4: 검지·중지·약지·소지, 5: 엄지 포함 전부
-      const fingers = [
-        { x: -18, len: 38, w: 10.5, up: count >= 1 }, // 검지
-        { x: -6,  len: 43, w: 10.5, up: count >= 2 }, // 중지
-        { x: 6,   len: 39, w: 10.5, up: count >= 3 }, // 약지
-        { x: 18,  len: 31, w: 9.5,  up: count >= 4 }, // 소지
-      ];
+      // 손목 ~ 손바닥 연결부 (부드러운 곡선 실루엣)
+      ctx.fillStyle = skin;
+      ctx.strokeStyle = outline;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(22, -10);
+      ctx.quadraticCurveTo(18, -22, 6, -24);
+      ctx.lineTo(-14, -22);
+      ctx.quadraticCurveTo(-28, -18, -28, 2);
+      ctx.quadraticCurveTo(-28, 20, -10, 22);
+      ctx.lineTo(14, 20);
+      ctx.quadraticCurveTo(24, 18, 24, 6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
 
-      for (const f of fingers) {
-        if (f.up) {
-          ctx.fillStyle = skin;
-          ctx.beginPath();
-          ctx.roundRect(f.x - f.w / 2, -11 - f.len, f.w, f.len + 6, f.w / 2);
-          ctx.fill();
-
-          ctx.fillStyle = "rgba(255,255,255,0.22)";
-          ctx.beginPath();
-          ctx.roundRect(f.x - f.w / 4, -11 - f.len + 4, f.w / 2, 5, 2);
-          ctx.fill();
-        } else {
-          ctx.fillStyle = skinShade;
-          ctx.beginPath();
-          ctx.roundRect(f.x - f.w / 2, -19, f.w, 13, 5);
-          ctx.fill();
-        }
-      }
-
-      // 엄지 (왼쪽 옆 위로 뻗음 or 손바닥 앞으로 접힘)
+      // 엄지 (5일 때 펴고, 1~4일 때는 손바닥 앞으로 자연스럽게 접음)
       if (count >= 5) {
         ctx.save();
-        ctx.translate(-23, 5);
-        ctx.rotate(-0.55);
+        ctx.translate(-22, 6);
+        ctx.rotate(-0.68);
         ctx.fillStyle = skin;
+        ctx.strokeStyle = outline;
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.roundRect(-26, -5.5, 28, 11, 5.5);
+        ctx.roundRect(-30, -6.5, 34, 13, 6.5);
         ctx.fill();
+        ctx.stroke();
         ctx.restore();
-      } else {
+      }
+
+      // 4개 손가락 (검지, 중지, 약지, 소지) — 부채꼴 각도로 자연스럽게 배치
+      const fingers = [
+        { bx: -17, by: -18, angle: -0.13, len: 39, w: 11,   up: count >= 1 }, // 검지
+        { bx: -6,  by: -20, angle: -0.04, len: 44, w: 11,   up: count >= 2 }, // 중지
+        { bx: 5,   by: -19, angle: 0.05,  len: 40, w: 10.5, up: count >= 3 }, // 약지
+        { bx: 16,  by: -16, angle: 0.15,  len: 32, w: 9.5,  up: count >= 4 }, // 소지
+      ];
+
+      // 1) 펴진 손가락 먼저 그리기 (손바닥 뒤/위쪽에서 뻗음)
+      for (const f of fingers) {
+        if (!f.up) continue;
         ctx.save();
-        ctx.translate(-20, 4);
-        ctx.rotate(0.25);
-        ctx.fillStyle = skinShade;
+        ctx.translate(f.bx, f.by);
+        ctx.rotate(f.angle);
+
+        ctx.fillStyle = skin;
+        ctx.strokeStyle = outline;
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.roundRect(-2, -5, 21, 10, 5);
+        ctx.roundRect(-f.w / 2, -f.len, f.w, f.len + 7, f.w / 2);
         ctx.fill();
+        ctx.stroke();
+
+        // 손가락 끝 하이라이트
+        ctx.fillStyle = "rgba(255,255,255,0.28)";
+        ctx.beginPath();
+        ctx.roundRect(-f.w / 4, -f.len + 4, f.w / 2, 5, 2.5);
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      // 손바닥 앞면 덮어주기 (펴진 손가락 뿌리가 자연스럽게 이어지도록)
+      ctx.fillStyle = skin;
+      ctx.beginPath();
+      ctx.ellipse(-2, 0, 22, 18, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 손바닥 손금 라인 (은은하게)
+      ctx.strokeStyle = "rgba(156, 107, 69, 0.35)";
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(-14, -4);
+      ctx.quadraticCurveTo(0, -1, 13, 4);
+      ctx.stroke();
+
+      // 2) 접힌 손가락은 손바닥 위로 말려 내려온 둥근 마디로 그리기
+      for (const f of fingers) {
+        if (f.up) continue;
+        ctx.save();
+        ctx.translate(f.bx, f.by + 11);
+        ctx.rotate(f.angle * 0.5);
+
+        ctx.fillStyle = skinDark;
+        ctx.strokeStyle = outline;
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.roundRect(-f.w / 2, -11, f.w, 17, f.w / 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // 1~4일 때 접힌 엄지가 접힌 손가락 위에 얹히도록 마지막에 그리기
+      if (count < 5) {
+        ctx.save();
+        ctx.translate(-15, 6);
+        ctx.rotate(-0.22);
+        ctx.fillStyle = skinDark;
+        ctx.strokeStyle = outline;
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.roundRect(-8, -6, 26, 12, 6);
+        ctx.fill();
+        ctx.stroke();
         ctx.restore();
       }
 
       if (isDone) {
-        ctx.strokeStyle = "rgba(86, 211, 100, 0.7)";
+        ctx.strokeStyle = "rgba(86, 211, 100, 0.75)";
         ctx.lineWidth = 2.5;
         ctx.beginPath();
-        ctx.arc(0, -14, 48, 0, Math.PI * 2);
+        ctx.arc(-2, -14, 50, 0, Math.PI * 2);
         ctx.stroke();
       }
 
