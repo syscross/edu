@@ -18,8 +18,8 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
-        padding: 10px 14px;
+        gap: 10px;
+        padding: 9px 14px;
         background: #0d1117;
         border-bottom: 1px solid #21262d;
         font-size: 12px;
@@ -41,14 +41,36 @@
         color: #f85149;
       }
       .edu-rl-log {
+        padding: 6px 14px;
+        background: #0b0f14;
+        border-bottom: 1px solid #21262d;
         font-size: 12px;
         color: #8b949e;
+        height: 30px;
+        line-height: 18px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        box-sizing: border-box;
+      }
+      .edu-rl-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 14px;
+        padding: 10px 16px 0;
+        font-size: 11.5px;
+        color: #8b949e;
+      }
+      .edu-rl-legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
       }
       .edu-rl-body {
         display: grid;
-        grid-template-columns: minmax(220px, 280px) 1fr;
-        gap: 16px;
-        padding: 16px;
+        grid-template-columns: minmax(220px, 270px) 1fr;
+        gap: 14px;
+        padding: 12px 16px 14px;
         align-items: start;
       }
       @media (max-width: 600px) {
@@ -59,14 +81,17 @@
       .edu-rl-grid {
         display: grid;
         grid-template-columns: repeat(6, 1fr);
+        grid-template-rows: repeat(6, 1fr);
         gap: 4px;
         aspect-ratio: 1 / 1;
         width: 100%;
-        max-width: 280px;
+        max-width: 270px;
         margin: 0 auto;
       }
       .edu-rl-cell {
         position: relative;
+        min-width: 0;
+        min-height: 0;
         background: #0d1117;
         border: 1px solid #21262d;
         border-radius: 6px;
@@ -74,7 +99,7 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        font-size: 18px;
+        font-size: 17px;
         transition: border-color 0.12s, background-color 0.15s;
         overflow: hidden;
       }
@@ -93,8 +118,19 @@
         background: rgba(63, 185, 80, 0.16);
         border-color: rgba(63, 185, 80, 0.55);
       }
+      .edu-rl-cell.is-start {
+        border-color: #388bfd;
+      }
       .edu-rl-cell.is-agent {
         box-shadow: inset 0 0 0 2px #58a6ff;
+      }
+      .edu-rl-tile-icon {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
       }
       .edu-rl-arrow {
         position: absolute;
@@ -105,28 +141,29 @@
         font-size: 13px;
         font-weight: 700;
         pointer-events: none;
-        opacity: 0.78;
+        opacity: 0.8;
       }
       .edu-rl-qscore {
         position: absolute;
         bottom: 2px;
         right: 3px;
         font-size: 9px;
+        line-height: 1;
         font-family: "Noto Sans Mono", ui-monospace, monospace;
         color: #8b949e;
         pointer-events: none;
       }
       .edu-rl-agent-icon {
-        position: relative;
-        z-index: 2;
-        font-size: 20px;
-        line-height: 1;
-        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.7));
-      }
-      .edu-rl-side {
+        position: absolute;
+        inset: 0;
         display: flex;
-        flex-direction: column;
-        gap: 12px;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+        font-size: 19px;
+        line-height: 1;
+        pointer-events: none;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.75));
       }
       .edu-rl-panel {
         background: #0d1117;
@@ -166,27 +203,6 @@
         border-color: #58a6ff;
         color: #f0f6fc;
       }
-      .edu-rl-fb-btns {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 6px;
-      }
-      .edu-rl-btn.is-good {
-        border-color: rgba(63, 185, 80, 0.5);
-        color: #3fb950;
-      }
-      .edu-rl-btn.is-good:hover:not(:disabled) {
-        background: rgba(63, 185, 80, 0.16);
-        border-color: #3fb950;
-      }
-      .edu-rl-btn.is-bad {
-        border-color: rgba(248, 81, 73, 0.5);
-        color: #f85149;
-      }
-      .edu-rl-btn.is-bad:hover:not(:disabled) {
-        background: rgba(248, 81, 73, 0.16);
-        border-color: #f85149;
-      }
       .edu-rl-btn.is-primary {
         background: #238636;
         border-color: #2ea043;
@@ -196,15 +212,11 @@
         background: #2ea043;
         border-color: #3fb950;
       }
-      .edu-rl-btn:disabled {
-        opacity: 0.45;
-        cursor: not-allowed;
-      }
       .edu-rl-hint {
-        font-size: 11px;
+        font-size: 11.5px;
         color: #8b949e;
-        line-height: 1.45;
-        margin-top: 6px;
+        line-height: 1.5;
+        margin-top: 8px;
       }
       .edu-rl-controls {
         display: flex;
@@ -282,12 +294,22 @@
     const epsStat = document.createElement("span");
     epsStat.className = "edu-rl-stat";
     stats.append(epStat, winStat, scoreStat, epsStat);
+    header.append(stats);
 
     const logEl = document.createElement("div");
     logEl.className = "edu-rl-log";
     logEl.textContent = "아무것도 모르는 상태입니다. 자동 또는 50판 학습을 눌러보세요.";
 
-    header.append(stats, logEl);
+    // Legend above grid
+    const legend = document.createElement("div");
+    legend.className = "edu-rl-legend";
+    legend.innerHTML = `
+      <span class="edu-rl-legend-item">🤖 로봇(출발)</span>
+      <span class="edu-rl-legend-item">💎 목표(+100)</span>
+      <span class="edu-rl-legend-item">⚡ 함정(-50)</span>
+      <span class="edu-rl-legend-item">🧱 벽(-6)</span>
+      <span class="edu-rl-legend-item">↑↓←→·숫자: 로봇이 기억한 방향과 예상 점수</span>
+    `;
 
     // Body
     const body = document.createElement("div");
@@ -295,9 +317,6 @@
 
     const gridEl = document.createElement("div");
     gridEl.className = "edu-rl-grid";
-
-    const side = document.createElement("div");
-    side.className = "edu-rl-side";
 
     // Map editor panel
     const mapPanel = document.createElement("div");
@@ -329,35 +348,11 @@
     });
     const mapHint = document.createElement("div");
     mapHint.className = "edu-rl-hint";
-    mapHint.textContent = "길을 다 찾은 뒤 벽으로 막아보면, 다시 헤매다 새 길을 찾습니다.";
+    mapHint.textContent =
+      "빈 칸을 한 걸음 걸을 때마다 -1점, 벽은 -6점, 함정은 -50점입니다. 길을 다 찾은 뒤 벽으로 막아보면 새 길을 다시 배웁니다.";
     mapPanel.append(toolsWrap, mapHint);
 
-    // User direct reward/punishment panel
-    const fbPanel = document.createElement("div");
-    fbPanel.className = "edu-rl-panel";
-    fbPanel.innerHTML = `<div class="edu-rl-panel-title">방금 행동에 직접 점수 주기</div>`;
-    const fbBtns = document.createElement("div");
-    fbBtns.className = "edu-rl-fb-btns";
-    const goodBtn = document.createElement("button");
-    goodBtn.type = "button";
-    goodBtn.className = "edu-rl-btn is-good";
-    goodBtn.textContent = "👍 칭찬 (+25)";
-    goodBtn.disabled = true;
-
-    const badBtn = document.createElement("button");
-    badBtn.type = "button";
-    badBtn.className = "edu-rl-btn is-bad";
-    badBtn.textContent = "👎 처벌 (-25)";
-    badBtn.disabled = true;
-
-    fbBtns.append(goodBtn, badBtn);
-    const fbHint = document.createElement("div");
-    fbHint.className = "edu-rl-hint";
-    fbHint.textContent = "로봇이 방금 고른 방향의 점수를 즉시 올리거나 깎습니다.";
-    fbPanel.append(fbBtns, fbHint);
-
-    side.append(mapPanel, fbPanel);
-    body.append(gridEl, side);
+    body.append(gridEl, mapPanel);
 
     // Controls
     const controls = document.createElement("div");
@@ -400,7 +395,7 @@
     btnsWrap.append(stepBtn, autoBtn, fastBtn, resetBrainBtn, resetMapBtn);
     controls.append(speedWrap, btnsWrap);
 
-    root.append(header, body, controls);
+    root.append(header, logEl, legend, body, controls);
     container.innerHTML = "";
     container.appendChild(root);
 
@@ -414,7 +409,6 @@
     let epScore = 0;
     let epSteps = 0;
     let epsilon = 0.85;
-    let lastMove = null; // { r, c, a }
     let autoTimer = null;
 
     const ALPHA = 0.25;
@@ -426,6 +420,23 @@
       for (let c = 0; c < SIZE; c++) {
         const cell = document.createElement("div");
         cell.className = "edu-rl-cell";
+
+        const tileIcon = document.createElement("span");
+        tileIcon.className = "edu-rl-tile-icon";
+
+        const arrowEl = document.createElement("span");
+        arrowEl.className = "edu-rl-arrow";
+
+        const scoreEl = document.createElement("span");
+        scoreEl.className = "edu-rl-qscore";
+
+        const botEl = document.createElement("span");
+        botEl.className = "edu-rl-agent-icon";
+        botEl.textContent = "🤖";
+        botEl.style.display = "none";
+
+        cell.append(tileIcon, arrowEl, scoreEl, botEl);
+
         cell.addEventListener("click", () => {
           if (r === 0 && c === 0) return;
           grid[r][c] = grid[r][c] === activeTool ? 0 : activeTool;
@@ -436,7 +447,7 @@
           render();
         });
         gridEl.appendChild(cell);
-        cells.push({ r, c, el: cell });
+        cells.push({ r, c, el: cell, tileIcon, arrowEl, scoreEl, botEl });
       }
     }
 
@@ -520,7 +531,6 @@
       const target = done ? reward : reward + GAMMA * maxQ(nextR, nextC);
       q[qIdx(r, c, a)] = oldQ + ALPHA * (target - oldQ);
 
-      lastMove = { r, c, a };
       epScore += reward;
       epSteps++;
       agentR = nextR;
@@ -542,29 +552,33 @@
       scoreStat.innerHTML = `현재점수 <b>${epScore > 0 ? `+${epScore}` : epScore}</b>`;
       epsStat.innerHTML = `탐험 <b>${Math.round(epsilon * 100)}%</b>`;
 
-      goodBtn.disabled = !lastMove;
-      badBtn.disabled = !lastMove;
-
       for (const cellObj of cells) {
-        const { r, c, el } = cellObj;
+        const { r, c, el, tileIcon, arrowEl, scoreEl, botEl } = cellObj;
         const type = grid[r][c];
         const isAgent = r === agentR && c === agentC;
 
         el.className = "edu-rl-cell";
+        if (r === 0 && c === 0) el.classList.add("is-start");
+        if (isAgent) el.classList.add("is-agent");
         el.style.backgroundColor = "";
-        el.innerHTML = "";
 
         if (type === 1) {
           el.classList.add("is-wall");
-          el.textContent = "🧱";
+          tileIcon.textContent = "🧱";
+          arrowEl.textContent = "";
+          scoreEl.textContent = "";
         } else if (type === 2) {
           el.classList.add("is-trap");
-          el.textContent = "⚡";
+          tileIcon.textContent = "⚡";
+          arrowEl.textContent = "";
+          scoreEl.textContent = "";
         } else if (type === 3) {
           el.classList.add("is-goal");
-          el.textContent = "💎";
+          tileIcon.textContent = "💎";
+          arrowEl.textContent = "";
+          scoreEl.textContent = "";
         } else {
-          // Show learned Q arrow & tint
+          tileIcon.textContent = "";
           let bestA = 0;
           let bestV = -Infinity;
           let allZero = true;
@@ -576,35 +590,23 @@
               bestA = a;
             }
           }
-          if (!allZero) {
+          if (!allZero && !isAgent) {
             const intensity = Math.min(0.45, Math.abs(bestV) / 110);
             if (bestV > 0) {
               el.style.backgroundColor = `rgba(63, 185, 80, ${intensity.toFixed(2)})`;
             } else if (bestV < 0) {
               el.style.backgroundColor = `rgba(248, 81, 73, ${intensity.toFixed(2)})`;
             }
-            const arrowEl = document.createElement("span");
-            arrowEl.className = "edu-rl-arrow";
             arrowEl.style.color = bestV >= 0 ? "#3fb950" : "#f85149";
             arrowEl.textContent = ACTIONS[bestA].arrow;
-            el.appendChild(arrowEl);
-
-            const scoreEl = document.createElement("span");
-            scoreEl.className = "edu-rl-qscore";
             scoreEl.textContent = Math.round(bestV);
-            el.appendChild(scoreEl);
-          } else if (r === 0 && c === 0 && !isAgent) {
-            el.style.borderColor = "#388bfd";
+          } else {
+            arrowEl.textContent = "";
+            scoreEl.textContent = "";
           }
         }
 
-        if (isAgent) {
-          el.classList.add("is-agent");
-          const bot = document.createElement("span");
-          bot.className = "edu-rl-agent-icon";
-          bot.textContent = "🤖";
-          el.appendChild(bot);
-        }
+        botEl.style.display = isAgent ? "flex" : "none";
       }
     }
 
@@ -653,24 +655,9 @@
         stepEnv(true);
         guard++;
       }
-      logEl.textContent = `50판 학습 완료! 이제 로봇이 길을 어떻게 기억했는지 보세요.`;
+      logEl.textContent = "50판 학습 완료! 이제 로봇이 길을 어떻게 기억했는지 보세요.";
       render();
     });
-
-    function applyManualFeedback(delta) {
-      if (!lastMove) return;
-      const { r, c, a } = lastMove;
-      q[qIdx(r, c, a)] += delta;
-      epScore += delta;
-      logEl.textContent =
-        delta > 0
-          ? `방금 ${ACTIONS[a].arrow} 행동에 칭찬(+${delta}점)을 줬습니다.`
-          : `방금 ${ACTIONS[a].arrow} 행동에 처벌(${delta}점)을 줬습니다.`;
-      render();
-    }
-
-    goodBtn.addEventListener("click", () => applyManualFeedback(25));
-    badBtn.addEventListener("click", () => applyManualFeedback(-25));
 
     resetBrainBtn.addEventListener("click", () => {
       stopAuto();
@@ -682,7 +669,6 @@
       epScore = 0;
       epSteps = 0;
       epsilon = 0.85;
-      lastMove = null;
       speedInput.value = "3";
       speedVal.textContent = "3x";
       logEl.textContent = "로봇의 기억을 초기화했습니다. 다시 아무것도 모릅니다.";
