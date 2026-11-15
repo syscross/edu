@@ -634,7 +634,7 @@
                     return;
                 }
                 const t = e.target;
-                if (!t.closest(".menu-btn") && t.closest("pre, table, .table-wrap")) { drag = null; return; }
+                if (!t.closest(".menu-btn") && t.closest("pre, table, .table-wrap, .edu-widget, canvas")) { drag = null; return; }
                 // 열린 서랍이 있으면 그 서랍을 닫는 방향으로만 움직임 (반대쪽 서랍으로 바로 넘어가지 않음)
                 const lo = s > 0 ? 0 : -1;
                 const hi = s < 0 ? 0 : 1;
