@@ -1,6 +1,6 @@
 ---
-hero: /assets/counting-numbers.png
-thumb: /assets/counting-numbers.png
+hero: /assets/counting-numbers.jpg
+thumb: /assets/counting-numbers.jpg
 ---
 
 # 수 세기
