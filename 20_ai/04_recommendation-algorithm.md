@@ -1,6 +1,6 @@
 ---
-hero: /assets/ai.png
-thumb: /assets/ai.png
+hero: /assets/recommendation-algorithm.png
+thumb: /assets/recommendation-algorithm.png
 ---
 
 # 추천 알고리즘

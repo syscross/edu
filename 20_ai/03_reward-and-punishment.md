@@ -1,6 +1,6 @@
 ---
-hero: /assets/ai.png
-thumb: /assets/ai.png
+hero: /assets/reward-and-punishment.png
+thumb: /assets/reward-and-punishment.png
 ---
 
 # 보상과 처벌
