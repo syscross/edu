@@ -14,22 +14,22 @@
       box-sizing: border-box;
     }
     .edu-base-body {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      padding: 20px 16px 12px;
+    }
+    .edu-base-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
-      padding: 22px 14px 18px;
+      padding: 0 16px 16px;
     }
     .edu-base-step {
-      flex: 0 0 auto;
-      width: 50px;
-      height: 64px;
+      height: 46px;
       border: 1px solid #30363d;
       border-radius: 10px;
       background: #0d1117;
       color: #f0f6fc;
       font-family: "Noto Sans Mono", ui-monospace, monospace;
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
       cursor: pointer;
       touch-action: manipulation;
@@ -112,20 +112,17 @@
     }
     @media (max-width: 400px) {
       .edu-base-body {
-        gap: 6px;
-        padding: 18px 10px 14px;
+        padding: 16px 12px 10px;
       }
-      .edu-base-step {
-        width: 42px;
-        height: 54px;
-        font-size: 15px;
+      .edu-base-actions {
+        padding: 0 12px 14px;
       }
       .edu-base-digits {
-        gap: 5px;
+        gap: 6px;
       }
       .edu-base-box {
-        height: 54px;
-        font-size: 22px;
+        height: 58px;
+        font-size: 24px;
       }
     }
   `;
@@ -203,7 +200,11 @@
       boxes.push({ box, placeVal });
     }
 
-    body.append(btnMinus, grid, btnPlus);
+    body.appendChild(grid);
+
+    const actions = document.createElement("div");
+    actions.className = "edu-base-actions";
+    actions.append(btnMinus, btnPlus);
 
     const footer = document.createElement("div");
     footer.className = "edu-base-footer";
@@ -216,7 +217,7 @@
     decSpan.className = "edu-base-dec";
     footer.append(labelSpan, decSpan);
 
-    stage.append(body, footer);
+    stage.append(body, actions, footer);
     root.appendChild(stage);
 
     function toDigits(v) {
