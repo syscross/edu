@@ -9,6 +9,9 @@ Counting Numbers
 
 ---
 
+<div class="edu-widget" data-widget="counting-apples"></div>
+<script src="/assets/widgets/counting-apples.js" defer></script>
+
 수학의 가장 첫걸음은 **수를 세는 것**입니다. 우리가 너무 당연하게 쓰는 `1, 2, 3, ...`이라는 숫자(자연수, Counting Numbers)는 사실 인류가 만들어 낸 가장 강력한 발명품 중 하나입니다.
 
 사과 3개, 돌멩이 3개, 손가락 3개는 크기와 색깔, 성질이 모두 다릅니다. 하지만 이 셋 사이에는 눈에 보이지 않는 공통점이 하나 있습니다. 바로 **개수가 같다**는 사실입니다. 구체적인 사물에서 색과 모양을 지우고 오직 '얼마나 많은가'만 뽑아낸 것, 그것이 바로 **수(Number)**입니다.
