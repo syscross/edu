@@ -60,11 +60,11 @@
     const canvas = document.createElement("canvas");
     canvas.className = "edu-apple-canvas";
     canvas.setAttribute("role", "img");
-    canvas.setAttribute("aria-label", "사과 수 세기 인터랙티브 위젯");
+    canvas.setAttribute("aria-label", "손가락 개수만큼 사과 담기 인터랙티브 위젯");
 
     const hint = document.createElement("div");
     hint.className = "edu-apple-hint";
-    hint.textContent = "화면을 클릭하거나 탭해서 숫자만큼 사과를 담아 보세요";
+    hint.textContent = "화면을 클릭하거나 탭해서 손가락 개수만큼 사과를 담아 보세요";
 
     stage.appendChild(canvas);
     stage.appendChild(hint);
@@ -82,16 +82,21 @@
     }
     resize();
 
-    // 바구니 기준 위치 (중앙~약간 왼쪽에 바구니, 오른쪽에서 손이 뻗음)
-    const REST_X = 215;
+    // 오른쪽 손 + 바구니 기준 위치
+    const REST_X = 235;
     const OFF_X = 620;
-    const BASKET_Y = 250;
+    const BASKET_Y = 258;
     const BASKET_W = 148;
     const BASKET_H = 68;
+
+    // 위쪽 손 (손가락 1~5 표시) 기준 위치
+    const HAND_REST_Y = 82;
+    const HAND_OFF_Y = -90;
 
     let state = "ENTERING"; // ENTERING | COLLECTING | SETTLE | EXITING | PAUSE
     let stateTime = 0;
     let basketX = OFF_X;
+    let topHandY = HAND_OFF_Y;
     let target = 0;
     let lastTarget = 0;
     let apples = []; // { offsetX, y, vy, settled, rot }
@@ -101,7 +106,7 @@
     function pickTarget() {
       let next;
       do {
-        next = Math.floor(Math.random() * 9) + 1;
+        next = Math.floor(Math.random() * 5) + 1;
       } while (next === lastTarget);
       lastTarget = next;
       return next;
@@ -111,6 +116,7 @@
       target = pickTarget();
       apples = [];
       basketX = OFF_X;
+      topHandY = HAND_OFF_Y;
       state = "ENTERING";
       stateTime = 0;
     }
@@ -127,15 +133,12 @@
 
       ripples.push({ x: tapX, y: tapY, r: 4, alpha: 0.6 });
 
-      // 바구니 입구 안으로 자연스럽게 들어가도록 X 오프셋 계산
       const minOff = -BASKET_W * 0.34;
       const maxOff = BASKET_W * 0.34;
       const rawOff = tapX - basketX;
       const jitter = (Math.random() - 0.5) * 14;
       const offsetX = clamp(rawOff * 0.65 + jitter, minOff, maxOff);
-
-      // 사과가 위쪽에서 떨어지도록 (탭 위치가 바구니보다 위면 그 높이, 아래면 상단에서)
-      const startY = clamp(tapY, 36, 130);
+      const startY = clamp(tapY, 128, 175);
 
       apples.push({
         offsetX,
@@ -162,7 +165,6 @@
       ctx.rotate(rot);
       ctx.scale(scale, scale);
 
-      // 그림자/바디
       ctx.fillStyle = "#e5484d";
       ctx.beginPath();
       ctx.arc(-5, 0, 12, 0, Math.PI * 2);
@@ -173,13 +175,11 @@
       ctx.ellipse(0, 3, 14, 13, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // 하이라이트
       ctx.fillStyle = "rgba(255,255,255,0.28)";
       ctx.beginPath();
       ctx.ellipse(-6, -4, 3.2, 5.5, -0.4, 0, Math.PI * 2);
       ctx.fill();
 
-      // 꼭지
       ctx.strokeStyle = "#8d5b2d";
       ctx.lineWidth = 2.6;
       ctx.lineCap = "round";
@@ -188,7 +188,6 @@
       ctx.quadraticCurveTo(2, -17, 5, -18);
       ctx.stroke();
 
-      // 잎
       ctx.fillStyle = "#3fb950";
       ctx.beginPath();
       ctx.ellipse(6, -14, 6, 3.2, -0.5, 0, Math.PI * 2);
@@ -197,22 +196,113 @@
       ctx.restore();
     }
 
+    // 위쪽에서 내려오는 다른 손 (손가락 1~5개 표시)
+    function drawTopHand(cx, cy, count, isDone) {
+      ctx.save();
+      ctx.translate(cx, cy);
+
+      // 위쪽에서 내려오는 팔/소매
+      ctx.fillStyle = "#8957e5";
+      ctx.beginPath();
+      ctx.roundRect(-18, -140, 36, 118, 16);
+      ctx.fill();
+
+      // 소매 커프스
+      ctx.fillStyle = "#f0f6fc";
+      ctx.fillRect(-20, -32, 40, 9);
+
+      // 손바닥 (아래를 향해 손가락을 펴는 형태)
+      const skin = "#f2c6a0";
+      const skinShade = "#dfb088";
+      ctx.fillStyle = skin;
+      ctx.beginPath();
+      ctx.roundRect(-27, -23, 54, 42, 16);
+      ctx.fill();
+
+      // 펴진 손가락 정의:
+      // 1: 검지
+      // 2: 검지, 중지
+      // 3: 검지, 중지, 약지
+      // 4: 검지, 중지, 약지, 소지
+      // 5: 엄지 + 검지, 중지, 약지, 소지
+      const fingers = [
+        // [x, len, width, active]
+        { x: -18, len: 36, w: 10.5, up: count >= 1 }, // 검지
+        { x: -6,  len: 41, w: 10.5, up: count >= 2 }, // 중지
+        { x: 6,   len: 37, w: 10.5, up: count >= 3 }, // 약지
+        { x: 18,  len: 30, w: 9.5,  up: count >= 4 }, // 소지
+      ];
+
+      // 펴진 손가락 (아래로 쭉 뻗음)
+      for (const f of fingers) {
+        if (f.up) {
+          ctx.fillStyle = skin;
+          ctx.beginPath();
+          ctx.roundRect(f.x - f.w / 2, 12, f.w, f.len, f.w / 2);
+          ctx.fill();
+
+          // 손톱/관절 포인트
+          ctx.fillStyle = "rgba(255,255,255,0.22)";
+          ctx.beginPath();
+          ctx.roundRect(f.x - f.w / 4, 12 + f.len - 9, f.w / 2, 5, 2);
+          ctx.fill();
+        } else {
+          // 접힌 손가락 마디
+          ctx.fillStyle = skinShade;
+          ctx.beginPath();
+          ctx.roundRect(f.x - f.w / 2, 6, f.w, 13, 5);
+          ctx.fill();
+        }
+      }
+
+      // 엄지 (왼쪽 옆으로 뻗음 or 안으로 접힘)
+      if (count >= 5) {
+        ctx.save();
+        ctx.translate(-24, -4);
+        ctx.rotate(0.45);
+        ctx.fillStyle = skin;
+        ctx.beginPath();
+        ctx.roundRect(-24, -5.5, 28, 11, 5.5);
+        ctx.fill();
+        ctx.restore();
+      } else {
+        ctx.save();
+        ctx.translate(-22, 1);
+        ctx.rotate(-0.25);
+        ctx.fillStyle = skinShade;
+        ctx.beginPath();
+        ctx.roundRect(-2, -5, 20, 10, 5);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // 완료 시 손 주변 은은한 초록 링
+      if (isDone) {
+        ctx.strokeStyle = "rgba(86, 211, 100, 0.7)";
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(0, 12, 48, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
     function drawArmAndBasket(bx) {
       const rightEdge = bx + BASKET_W / 2;
 
-      // 오른쪽에서 뻗어 나오는 팔 + 손
       ctx.save();
-      // 소매 / 팔
+      // 오른쪽 팔 소매
       ctx.fillStyle = "#388bfd";
       ctx.beginPath();
       ctx.roundRect(rightEdge + 22, BASKET_Y - 12, W - rightEdge + 120, 34, 17);
       ctx.fill();
 
-      // 손목 커프스
+      // 커프스
       ctx.fillStyle = "#f0f6fc";
       ctx.fillRect(rightEdge + 18, BASKET_Y - 13, 10, 36);
 
-      // 손바닥 + 손가락 (바구니 오른쪽 손잡이를 잡은 모습)
+      // 손
       ctx.fillStyle = "#f2c6a0";
       ctx.beginPath();
       ctx.roundRect(rightEdge - 8, BASKET_Y - 10, 32, 30, 12);
@@ -240,7 +330,6 @@
       const botHalf = BASKET_W * 0.36;
 
       ctx.save();
-      // 바구니 몸통 (사다리꼴 둥근 바닥)
       ctx.beginPath();
       ctx.moveTo(bx - topHalf, topY);
       ctx.lineTo(bx + topHalf, topY);
@@ -252,7 +341,6 @@
       ctx.fillStyle = "#c68b45";
       ctx.fill();
 
-      // 격자 무늬 (바구니 결)
       ctx.save();
       ctx.clip();
       ctx.strokeStyle = "#9e692c";
@@ -271,7 +359,6 @@
       }
       ctx.restore();
 
-      // 바구니 윗입구 림
       ctx.fillStyle = "#dfa358";
       ctx.strokeStyle = "#8a5a2b";
       ctx.lineWidth = 2;
@@ -282,52 +369,27 @@
       ctx.restore();
     }
 
-    function drawBadge(bx) {
-      // 손 위쪽 말풍선 / 목표 숫자 카드
-      const cardX = bx + 98;
-      const cardY = 104;
-      const isDone = apples.length === target && target > 0;
-
-      ctx.save();
-      // 말풍선 카드
-      ctx.fillStyle = isDone ? "#1a3b27" : "#0d1117";
-      ctx.strokeStyle = isDone ? "#3fb950" : "#30363d";
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.roundRect(cardX - 54, cardY - 46, 108, 92, 16);
-      ctx.fill();
-      ctx.stroke();
-
-      // 목표 숫자 (크게)
-      ctx.fillStyle = isDone ? "#56d364" : "#f0f6fc";
-      ctx.font = "700 44px 'Noto Sans Mono', ui-monospace, monospace";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(String(target), cardX, cardY - 6);
-
-      // 현재 진행도 (작게)
-      ctx.fillStyle = isDone ? "#7ee787" : "#8b949e";
-      ctx.font = "600 13px 'Noto Sans Mono', ui-monospace, monospace";
-      ctx.fillText(`${apples.length} / ${target}`, cardX, cardY + 29);
-      ctx.restore();
-    }
-
     function update(dt) {
       stateTime += dt;
 
       if (state === "ENTERING") {
         const dur = 0.48;
         const t = Math.min(stateTime / dur, 1);
-        basketX = OFF_X + (REST_X - OFF_X) * easeOutCubic(t);
+        const e = easeOutCubic(t);
+        basketX = OFF_X + (REST_X - OFF_X) * e;
+        topHandY = HAND_OFF_Y + (HAND_REST_Y - HAND_OFF_Y) * e;
         if (t >= 1) {
           basketX = REST_X;
+          topHandY = HAND_REST_Y;
           state = "COLLECTING";
           stateTime = 0;
         }
       } else if (state === "EXITING") {
         const dur = 0.52;
         const t = Math.min(stateTime / dur, 1);
-        basketX = REST_X + (OFF_X - REST_X) * easeInCubic(t);
+        const e = easeInCubic(t);
+        basketX = REST_X + (OFF_X - REST_X) * e;
+        topHandY = HAND_REST_Y + (HAND_OFF_Y - HAND_REST_Y) * e;
         if (t >= 1) {
           state = "PAUSE";
           stateTime = 0;
@@ -338,14 +400,12 @@
         }
       }
 
-      // 사과 낙하 물리
       const gravity = 1550;
       const floorY = BASKET_Y - 12;
       let allSettled = true;
 
       for (let i = 0; i < apples.length; i++) {
         const a = apples[i];
-        // 쌓인 느낌을 주기 위해 인덱스별로 살짝 다른 착지 높이
         const layerOffset = Math.floor(i / 4) * 14;
         const myFloor = floorY - layerOffset;
 
@@ -370,7 +430,6 @@
         stateTime = 0;
       }
 
-      // 탭 리플
       for (let i = ripples.length - 1; i >= 0; i--) {
         ripples[i].r += 90 * dt;
         ripples[i].alpha -= 1.8 * dt;
@@ -381,7 +440,6 @@
     function render() {
       ctx.clearRect(0, 0, W, H);
 
-      // 은은한 배경 점선/바닥선
       ctx.strokeStyle = "#21262d";
       ctx.lineWidth = 1.5;
       ctx.beginPath();
@@ -389,7 +447,6 @@
       ctx.lineTo(W - 24, BASKET_Y + BASKET_H / 2 + 12);
       ctx.stroke();
 
-      // 탭 리플
       for (const rp of ripples) {
         ctx.strokeStyle = `rgba(240, 246, 252, ${rp.alpha})`;
         ctx.lineWidth = 2;
@@ -399,15 +456,15 @@
       }
 
       if (state !== "PAUSE") {
+        const isDone = apples.length === target && target > 0;
+        drawTopHand(REST_X, topHandY, target, isDone);
         drawArmAndBasket(basketX);
 
-        // 바구니 안/위 사과 그리기
         for (const a of apples) {
           drawApple(basketX + a.offsetX, a.y, a.rot);
         }
 
         drawBasketFront(basketX);
-        drawBadge(basketX);
       }
     }
 
