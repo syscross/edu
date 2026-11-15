@@ -298,7 +298,7 @@
 
     const logEl = document.createElement("div");
     logEl.className = "edu-rl-log";
-    logEl.textContent = "아무것도 모르는 상태입니다. 자동 또는 50판 학습을 눌러보세요.";
+    logEl.textContent = "아무것도 모르는 상태입니다. 자동 또는 10판 학습을 눌러보세요.";
 
     // Legend above grid
     const legend = document.createElement("div");
@@ -380,7 +380,7 @@
     const fastBtn = document.createElement("button");
     fastBtn.type = "button";
     fastBtn.className = "edu-rl-btn";
-    fastBtn.textContent = "50판 학습";
+    fastBtn.textContent = "10판 학습";
 
     const resetBrainBtn = document.createElement("button");
     resetBrainBtn.type = "button";
@@ -649,13 +649,13 @@
 
     fastBtn.addEventListener("click", () => {
       stopAuto();
-      const targetEp = episodes + 50;
+      const targetEp = episodes + 10;
       let guard = 0;
-      while (episodes < targetEp && guard < 3000) {
+      while (episodes < targetEp && guard < 1000) {
         stepEnv(true);
         guard++;
       }
-      logEl.textContent = "50판 학습 완료! 이제 로봇이 길을 어떻게 기억했는지 보세요.";
+      logEl.textContent = "10판 학습 완료! 이제 로봇이 길을 어떻게 기억했는지 보세요.";
       render();
     });
 
