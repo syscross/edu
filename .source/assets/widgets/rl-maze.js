@@ -637,7 +637,7 @@
         stopAuto();
         return;
       }
-      autoBtn.textContent = "멈추기";
+      autoBtn.textContent = "중지";
       const tick = () => {
         if (!autoTimer) return;
         stepEnv(false);
