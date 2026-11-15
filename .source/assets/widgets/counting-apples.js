@@ -83,20 +83,19 @@
     resize();
 
     // 오른쪽 손 + 바구니 기준 위치
-    const REST_X = 235;
+    const REST_X = 215;
     const OFF_X = 620;
-    const BASKET_Y = 258;
+    const BASKET_Y = 262;
     const BASKET_W = 148;
     const BASKET_H = 68;
 
-    // 위쪽 손 (손가락 1~5 표시) 기준 위치
-    const HAND_REST_Y = 82;
-    const HAND_OFF_Y = -90;
+    // 고객의 위쪽 손 (손가락 1~5 표시, 오른쪽에서 뻗음)
+    const HAND_OFFSET_X = 110;
+    const HAND_Y = 112;
 
     let state = "ENTERING"; // ENTERING | COLLECTING | SETTLE | EXITING | PAUSE
     let stateTime = 0;
     let basketX = OFF_X;
-    let topHandY = HAND_OFF_Y;
     let target = 0;
     let lastTarget = 0;
     let apples = []; // { offsetX, y, vy, settled, rot }
@@ -116,7 +115,6 @@
       target = pickTarget();
       apples = [];
       basketX = OFF_X;
-      topHandY = HAND_OFF_Y;
       state = "ENTERING";
       stateTime = 0;
     }
@@ -196,92 +194,83 @@
       ctx.restore();
     }
 
-    // 위쪽에서 내려오는 다른 손 (손가락 1~5개 표시)
+    // 오른쪽에서 고객이 뻗은 위쪽 손 (손가락 1~5개를 위로 펴서 표시)
     function drawTopHand(cx, cy, count, isDone) {
       ctx.save();
       ctx.translate(cx, cy);
 
-      // 위쪽에서 내려오는 팔/소매
-      ctx.fillStyle = "#8957e5";
+      // 오른쪽에서 뻗어 나오는 팔/소매 (바구니 손과 같은 고객)
+      ctx.fillStyle = "#388bfd";
       ctx.beginPath();
-      ctx.roundRect(-18, -140, 36, 118, 16);
+      ctx.roundRect(22, -11, W - cx + 120, 32, 16);
       ctx.fill();
 
       // 소매 커프스
       ctx.fillStyle = "#f0f6fc";
-      ctx.fillRect(-20, -32, 40, 9);
+      ctx.fillRect(18, -12, 9, 34);
 
-      // 손바닥 (아래를 향해 손가락을 펴는 형태)
+      // 손바닥 (손가락을 위로 펴는 정면 형태)
       const skin = "#f2c6a0";
       const skinShade = "#dfb088";
       ctx.fillStyle = skin;
       ctx.beginPath();
-      ctx.roundRect(-27, -23, 54, 42, 16);
+      ctx.roundRect(-27, -18, 54, 42, 16);
       ctx.fill();
 
-      // 펴진 손가락 정의:
-      // 1: 검지
-      // 2: 검지, 중지
-      // 3: 검지, 중지, 약지
-      // 4: 검지, 중지, 약지, 소지
-      // 5: 엄지 + 검지, 중지, 약지, 소지
+      // 펴진 손가락 (위로 뻗음):
+      // 1: 검지, 2: 검지·중지, 3: 검지·중지·약지, 4: 검지·중지·약지·소지, 5: 엄지 포함 전부
       const fingers = [
-        // [x, len, width, active]
-        { x: -18, len: 36, w: 10.5, up: count >= 1 }, // 검지
-        { x: -6,  len: 41, w: 10.5, up: count >= 2 }, // 중지
-        { x: 6,   len: 37, w: 10.5, up: count >= 3 }, // 약지
-        { x: 18,  len: 30, w: 9.5,  up: count >= 4 }, // 소지
+        { x: -18, len: 38, w: 10.5, up: count >= 1 }, // 검지
+        { x: -6,  len: 43, w: 10.5, up: count >= 2 }, // 중지
+        { x: 6,   len: 39, w: 10.5, up: count >= 3 }, // 약지
+        { x: 18,  len: 31, w: 9.5,  up: count >= 4 }, // 소지
       ];
 
-      // 펴진 손가락 (아래로 쭉 뻗음)
       for (const f of fingers) {
         if (f.up) {
           ctx.fillStyle = skin;
           ctx.beginPath();
-          ctx.roundRect(f.x - f.w / 2, 12, f.w, f.len, f.w / 2);
+          ctx.roundRect(f.x - f.w / 2, -11 - f.len, f.w, f.len + 6, f.w / 2);
           ctx.fill();
 
-          // 손톱/관절 포인트
           ctx.fillStyle = "rgba(255,255,255,0.22)";
           ctx.beginPath();
-          ctx.roundRect(f.x - f.w / 4, 12 + f.len - 9, f.w / 2, 5, 2);
+          ctx.roundRect(f.x - f.w / 4, -11 - f.len + 4, f.w / 2, 5, 2);
           ctx.fill();
         } else {
-          // 접힌 손가락 마디
           ctx.fillStyle = skinShade;
           ctx.beginPath();
-          ctx.roundRect(f.x - f.w / 2, 6, f.w, 13, 5);
+          ctx.roundRect(f.x - f.w / 2, -19, f.w, 13, 5);
           ctx.fill();
         }
       }
 
-      // 엄지 (왼쪽 옆으로 뻗음 or 안으로 접힘)
+      // 엄지 (왼쪽 옆 위로 뻗음 or 손바닥 앞으로 접힘)
       if (count >= 5) {
         ctx.save();
-        ctx.translate(-24, -4);
-        ctx.rotate(0.45);
+        ctx.translate(-23, 5);
+        ctx.rotate(-0.55);
         ctx.fillStyle = skin;
         ctx.beginPath();
-        ctx.roundRect(-24, -5.5, 28, 11, 5.5);
+        ctx.roundRect(-26, -5.5, 28, 11, 5.5);
         ctx.fill();
         ctx.restore();
       } else {
         ctx.save();
-        ctx.translate(-22, 1);
-        ctx.rotate(-0.25);
+        ctx.translate(-20, 4);
+        ctx.rotate(0.25);
         ctx.fillStyle = skinShade;
         ctx.beginPath();
-        ctx.roundRect(-2, -5, 20, 10, 5);
+        ctx.roundRect(-2, -5, 21, 10, 5);
         ctx.fill();
         ctx.restore();
       }
 
-      // 완료 시 손 주변 은은한 초록 링
       if (isDone) {
         ctx.strokeStyle = "rgba(86, 211, 100, 0.7)";
         ctx.lineWidth = 2.5;
         ctx.beginPath();
-        ctx.arc(0, 12, 48, 0, Math.PI * 2);
+        ctx.arc(0, -14, 48, 0, Math.PI * 2);
         ctx.stroke();
       }
 
@@ -375,21 +364,16 @@
       if (state === "ENTERING") {
         const dur = 0.48;
         const t = Math.min(stateTime / dur, 1);
-        const e = easeOutCubic(t);
-        basketX = OFF_X + (REST_X - OFF_X) * e;
-        topHandY = HAND_OFF_Y + (HAND_REST_Y - HAND_OFF_Y) * e;
+        basketX = OFF_X + (REST_X - OFF_X) * easeOutCubic(t);
         if (t >= 1) {
           basketX = REST_X;
-          topHandY = HAND_REST_Y;
           state = "COLLECTING";
           stateTime = 0;
         }
       } else if (state === "EXITING") {
         const dur = 0.52;
         const t = Math.min(stateTime / dur, 1);
-        const e = easeInCubic(t);
-        basketX = REST_X + (OFF_X - REST_X) * e;
-        topHandY = HAND_REST_Y + (HAND_OFF_Y - HAND_REST_Y) * e;
+        basketX = REST_X + (OFF_X - REST_X) * easeInCubic(t);
         if (t >= 1) {
           state = "PAUSE";
           stateTime = 0;
@@ -457,7 +441,7 @@
 
       if (state !== "PAUSE") {
         const isDone = apples.length === target && target > 0;
-        drawTopHand(REST_X, topHandY, target, isDone);
+        drawTopHand(basketX + HAND_OFFSET_X, HAND_Y, target, isDone);
         drawArmAndBasket(basketX);
 
         for (const a of apples) {
