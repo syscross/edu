@@ -43,7 +43,7 @@
         color: #c9d1d9;
         border: 1px solid #30363d;
         border-radius: 6px;
-        padding: 4px 10px;
+        padding: 5px 10px;
         font-size: 12px;
         cursor: pointer;
       }
@@ -69,12 +69,12 @@
       }
       .edu-yt-body {
         display: grid;
-        grid-template-columns: minmax(240px, 300px) 1fr;
+        grid-template-columns: minmax(230px, 280px) 1fr;
         gap: 16px;
         padding: 12px 16px 16px;
-        align-items: start;
+        align-items: stretch;
       }
-      @media (max-width: 660px) {
+      @media (max-width: 640px) {
         .edu-yt-body {
           grid-template-columns: 1fr;
         }
@@ -82,7 +82,7 @@
       .edu-yt-canvas-wrap {
         position: relative;
         width: 100%;
-        max-width: 300px;
+        max-width: 280px;
         margin: 0 auto;
         aspect-ratio: 1 / 1;
         background: #0d1117;
@@ -116,115 +116,126 @@
       .edu-yt-tooltip.is-visible {
         opacity: 1;
       }
-      .edu-yt-feed {
+      .edu-yt-right {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        justify-content: space-between;
+        gap: 12px;
       }
-      .edu-yt-feed-title {
-        font-size: 11.5px;
-        font-weight: 600;
-        color: #8b949e;
-        margin-bottom: 2px;
+      .edu-yt-card {
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
       }
-      .edu-yt-item {
+      .edu-yt-card-badge {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
-        padding: 6px 10px;
-        background: #0d1117;
-        border: 1px solid #21262d;
-        border-radius: 7px;
-        transition: border-color 0.12s, background 0.12s;
-      }
-      .edu-yt-item.is-like {
-        border-color: rgba(63, 185, 80, 0.45);
-      }
-      .edu-yt-item.is-dislike {
-        border-color: rgba(248, 81, 73, 0.45);
-        opacity: 0.78;
-      }
-      .edu-yt-item-info {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        min-width: 0;
-      }
-      .edu-yt-item-dot {
-        width: 9px;
-        height: 9px;
-        border-radius: 50%;
-        flex-shrink: 0;
-        background: #8b949e;
-      }
-      .edu-yt-item.is-like .edu-yt-item-dot {
-        background: #3fb950;
-      }
-      .edu-yt-item.is-dislike .edu-yt-item-dot {
-        background: #f85149;
-      }
-      .edu-yt-item-title {
-        font-size: 12.5px;
-        color: #f0f6fc;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .edu-yt-item-right {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        flex-shrink: 0;
-      }
-      .edu-yt-score {
-        font-family: "Noto Sans Mono", ui-monospace, monospace;
         font-size: 11px;
-        min-width: 44px;
-        text-align: right;
+        color: #8b949e;
+        font-family: "Noto Sans Mono", ui-monospace, monospace;
+      }
+      .edu-yt-card-badge b {
+        color: #58a6ff;
+      }
+      .edu-yt-card-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: #f0f6fc;
+        line-height: 1.35;
+      }
+      .edu-yt-card-meta {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        font-size: 11.5px;
         color: #8b949e;
       }
-      .edu-yt-score.is-pos {
-        color: #3fb950;
+      .edu-yt-tag {
+        background: #161b22;
+        border: 1px solid #21262d;
+        border-radius: 999px;
+        padding: 2px 8px;
       }
-      .edu-yt-score.is-neg {
-        color: #f85149;
+      .edu-yt-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 4px;
       }
       .edu-yt-act {
         background: #161b22;
         border: 1px solid #30363d;
-        border-radius: 5px;
-        padding: 3px 7px;
-        font-size: 12px;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #f0f6fc;
         cursor: pointer;
-        line-height: 1.2;
+        transition: background 0.12s, border-color 0.12s;
       }
-      .edu-yt-act:hover {
-        background: #21262d;
-      }
-      .edu-yt-act.is-like-on {
-        background: rgba(63, 185, 80, 0.2);
+      .edu-yt-act.is-like:hover {
+        background: rgba(63, 185, 80, 0.18);
         border-color: #3fb950;
+        color: #3fb950;
       }
-      .edu-yt-act.is-dislike-on {
-        background: rgba(248, 81, 73, 0.2);
+      .edu-yt-act.is-dislike:hover {
+        background: rgba(248, 81, 73, 0.18);
         border-color: #f85149;
+        color: #f85149;
+      }
+      .edu-yt-prev {
+        background: #0b0f14;
+        border: 1px solid #21262d;
+        border-radius: 8px;
+        padding: 9px 12px;
+        font-size: 12px;
+        color: #8b949e;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .edu-yt-prev-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .edu-yt-prev-badge {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 2px 7px;
+        border-radius: 999px;
+        flex-shrink: 0;
+      }
+      .edu-yt-prev-badge.is-like {
+        background: rgba(63, 185, 80, 0.16);
+        color: #3fb950;
+      }
+      .edu-yt-prev-badge.is-dislike {
+        background: rgba(248, 81, 73, 0.16);
+        color: #f85149;
       }
     `;
     document.head.appendChild(style);
   }
 
   const VIDEOS = [
-    { id: 0, title: "파이썬 1분 핵심 요약", x: -0.75, y: 0.72 },
-    { id: 1, title: "영어 단어 30초 암기", x: -0.52, y: 0.85 },
-    { id: 2, title: "고양이 댄스 쇼츠", x: 0.80, y: 0.84 },
-    { id: 3, title: "매운 떡볶이 1분 먹방", x: 0.62, y: 0.56 },
-    { id: 4, title: "예능 레전드 클립", x: 0.48, y: 0.22 },
-    { id: 5, title: "우주 다큐멘터리 1시간", x: -0.84, y: -0.78 },
-    { id: 6, title: "현대 물리학 심층 특강", x: -0.68, y: -0.56 },
-    { id: 7, title: "경제 뉴스 분석 리포트", x: -0.44, y: -0.38 },
-    { id: 8, title: "공포 게임 풀버전 2시간", x: 0.82, y: -0.74 },
-    { id: 9, title: "아이돌 콘서트 풀캠 모음", x: 0.64, y: -0.40 },
+    { id: 0, title: "파이썬 1분 핵심 요약", x: -0.75, y: 0.72, tags: ["지식", "짧음"] },
+    { id: 1, title: "영어 단어 30초 암기", x: -0.52, y: 0.85, tags: ["지식", "짧음"] },
+    { id: 2, title: "고양이 댄스 쇼츠", x: 0.80, y: 0.84, tags: ["오락", "짧음"] },
+    { id: 3, title: "매운 떡볶이 1분 먹방", x: 0.62, y: 0.56, tags: ["오락", "짧음"] },
+    { id: 4, title: "예능 레전드 클립", x: 0.48, y: 0.22, tags: ["오락", "가벼움"] },
+    { id: 5, title: "우주 다큐멘터리 1시간", x: -0.84, y: -0.78, tags: ["지식", "긴영상"] },
+    { id: 6, title: "현대 물리학 심층 특강", x: -0.68, y: -0.56, tags: ["지식", "긴영상"] },
+    { id: 7, title: "경제 뉴스 분석 리포트", x: -0.44, y: -0.38, tags: ["지식", "깊이"] },
+    { id: 8, title: "공포 게임 풀버전 2시간", x: 0.82, y: -0.74, tags: ["오락", "긴영상"] },
+    { id: 9, title: "아이돌 콘서트 풀캠 모음", x: 0.64, y: -0.40, tags: ["오락", "긴영상"] },
   ];
 
   function mountWidget(container) {
@@ -257,6 +268,7 @@
       <span><i class="edu-yt-dot-swatch" style="background:#3fb950"></i>좋아요</span>
       <span><i class="edu-yt-dot-swatch" style="background:#f85149"></i>싫어요</span>
       <span><i class="edu-yt-dot-swatch" style="background:#8b949e"></i>미평가</span>
+      <span><i class="edu-yt-dot-swatch" style="background:#f0f6fc"></i>현재 추천</span>
       <span><i class="edu-yt-dot-swatch" style="background:#58a6ff"></i>내 취향 화살표(w)</span>
     `;
 
@@ -272,24 +284,54 @@
     tooltip.className = "edu-yt-tooltip";
     canvasWrap.append(canvas, tooltip);
 
-    const feed = document.createElement("div");
-    feed.className = "edu-yt-feed";
-    const feedTitle = document.createElement("div");
-    feedTitle.className = "edu-yt-feed-title";
-    feedTitle.textContent = "홈 추천 순위 (점수 높은 순)";
-    const feedList = document.createElement("div");
-    feedList.className = "edu-yt-feed";
-    feed.append(feedTitle, feedList);
+    const right = document.createElement("div");
+    right.className = "edu-yt-right";
 
-    body.append(canvasWrap, feed);
+    const card = document.createElement("div");
+    card.className = "edu-yt-card";
+    const cardBadge = document.createElement("div");
+    cardBadge.className = "edu-yt-card-badge";
+    const cardTitle = document.createElement("div");
+    cardTitle.className = "edu-yt-card-title";
+    const cardMeta = document.createElement("div");
+    cardMeta.className = "edu-yt-card-meta";
+
+    const actions = document.createElement("div");
+    actions.className = "edu-yt-actions";
+    const likeBtn = document.createElement("button");
+    likeBtn.type = "button";
+    likeBtn.className = "edu-yt-act is-like";
+    likeBtn.textContent = "👍 좋아요";
+    const dislikeBtn = document.createElement("button");
+    dislikeBtn.type = "button";
+    dislikeBtn.className = "edu-yt-act is-dislike";
+    dislikeBtn.textContent = "👎 싫어요";
+    actions.append(likeBtn, dislikeBtn);
+
+    card.append(cardBadge, cardTitle, cardMeta, actions);
+
+    const prevBox = document.createElement("div");
+    prevBox.className = "edu-yt-prev";
+    const prevText = document.createElement("span");
+    prevText.className = "edu-yt-prev-text";
+    prevText.textContent = "이전 평가: 아직 없음";
+    const prevBadge = document.createElement("span");
+    prevBadge.className = "edu-yt-prev-badge";
+    prevBadge.style.display = "none";
+    prevBox.append(prevText, prevBadge);
+
+    right.append(card, prevBox);
+    body.append(canvasWrap, right);
     root.append(header, legend, body);
     container.innerHTML = "";
     container.appendChild(root);
 
-    // State: 0 = neutral, 1 = like, -1 = dislike
+    // State
     const ratings = new Int8Array(VIDEOS.length);
     let w1 = 0;
     let w2 = 0;
+    let currentId = Math.floor(Math.random() * VIDEOS.length);
+    let prevAction = null; // { title, vote, score }
     let hoveredId = -1;
 
     function recomputeWeights() {
@@ -297,8 +339,8 @@
       let sy = 0;
       for (let i = 0; i < VIDEOS.length; i++) {
         if (ratings[i] === 0) continue;
-        sx += ratings[i] * 0.35 * VIDEOS[i].x;
-        sy += ratings[i] * 0.35 * VIDEOS[i].y;
+        sx += ratings[i] * 0.4 * VIDEOS[i].x;
+        sy += ratings[i] * 0.4 * VIDEOS[i].y;
       }
       const norm = Math.hypot(sx, sy);
       if (norm > 1.0) {
@@ -313,9 +355,30 @@
       return w1 * v.x + w2 * v.y;
     }
 
+    function getProbabilities() {
+      const temp = 3.0;
+      const logits = VIDEOS.map((v) => scoreVideo(v) * temp);
+      const maxL = Math.max(...logits);
+      const exps = logits.map((l) => Math.exp(l - maxL));
+      const sum = exps.reduce((a, b) => a + b, 0);
+      return exps.map((e) => e / sum);
+    }
+
+    function pickNextVideo(excludeId) {
+      const probs = getProbabilities();
+      const pool = VIDEOS.map((v, i) => ({ id: v.id, p: v.id === excludeId ? 0 : probs[i] }));
+      const total = pool.reduce((a, b) => a + b.p, 0);
+      let r = Math.random() * total;
+      for (const item of pool) {
+        r -= item.p;
+        if (r <= 0) return item.id;
+      }
+      return pool[0].id;
+    }
+
     function drawSpace() {
       const rect = canvas.getBoundingClientRect();
-      const size = Math.max(220, Math.round(rect.width || 280));
+      const size = Math.max(220, Math.round(rect.width || 270));
       const dpr = window.devicePixelRatio || 1;
       if (canvas.width !== size * dpr || canvas.height !== size * dpr) {
         canvas.width = size * dpr;
@@ -391,8 +454,19 @@
         const px = toPx(v.x);
         const py = toPy(v.y);
         const rState = ratings[v.id];
+        const isCurrent = v.id === currentId;
+        const isHover = v.id === hoveredId;
+
+        if (isCurrent) {
+          ctx.beginPath();
+          ctx.arc(px, py, 9, 0, Math.PI * 2);
+          ctx.strokeStyle = "#f0f6fc";
+          ctx.lineWidth = 1.8;
+          ctx.stroke();
+        }
+
         ctx.beginPath();
-        ctx.arc(px, py, hoveredId === v.id ? 7 : 5.5, 0, Math.PI * 2);
+        ctx.arc(px, py, isHover || isCurrent ? 6 : 5, 0, Math.PI * 2);
         if (rState === 1) {
           ctx.fillStyle = "#3fb950";
         } else if (rState === -1) {
@@ -401,8 +475,8 @@
           ctx.fillStyle = "#8b949e";
         }
         ctx.fill();
-        ctx.lineWidth = hoveredId === v.id ? 2 : 1;
-        ctx.strokeStyle = hoveredId === v.id ? "#f0f6fc" : "#0d1117";
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "#0d1117";
         ctx.stroke();
       }
 
@@ -439,74 +513,45 @@
       const sign2 = w2 >= 0 ? "+" : "";
       wText.innerHTML = `내 취향 <b>w = (${sign1}${w1.toFixed(2)}, ${sign2}${w2.toFixed(2)})</b>`;
 
-      const ranked = VIDEOS.map((v) => ({
-        v,
-        score: scoreVideo(v),
-        rating: ratings[v.id],
-      })).sort((a, b) => {
-        if (Math.abs(b.score - a.score) > 1e-6) return b.score - a.score;
-        return a.v.id - b.v.id;
-      });
+      const probs = getProbabilities();
+      const v = VIDEOS[currentId];
+      const sc = scoreVideo(v);
+      const probPct = Math.round(probs[currentId] * 100);
 
-      feedList.innerHTML = "";
-      for (const row of ranked) {
-        const { v, score, rating } = row;
-        const item = document.createElement("div");
-        item.className = `edu-yt-item${rating === 1 ? " is-like" : rating === -1 ? " is-dislike" : ""}`;
+      cardBadge.innerHTML = `<span>지금 추천된 영상</span><span>추천 확률 <b>${probPct}%</b></span>`;
+      cardTitle.textContent = v.title;
+      cardMeta.innerHTML = `
+        <span class="edu-yt-tag">${v.tags[0]}</span>
+        <span class="edu-yt-tag">${v.tags[1]}</span>
+        <span class="edu-yt-tag">좌표 (${v.x.toFixed(2)}, ${v.y.toFixed(2)})</span>
+        <span class="edu-yt-tag">점수 ${sc >= 0 ? "+" : ""}${sc.toFixed(2)}</span>
+      `;
 
-        const info = document.createElement("div");
-        info.className = "edu-yt-item-info";
-        const dot = document.createElement("span");
-        dot.className = "edu-yt-item-dot";
-        const title = document.createElement("span");
-        title.className = "edu-yt-item-title";
-        title.textContent = v.title;
-        info.append(dot, title);
-
-        const right = document.createElement("div");
-        right.className = "edu-yt-item-right";
-
-        const scoreEl = document.createElement("span");
-        scoreEl.className = `edu-yt-score${score > 0.01 ? " is-pos" : score < -0.01 ? " is-neg" : ""}`;
-        scoreEl.textContent = `${score >= 0 ? "+" : ""}${score.toFixed(2)}`;
-
-        const likeBtn = document.createElement("button");
-        likeBtn.type = "button";
-        likeBtn.className = `edu-yt-act${rating === 1 ? " is-like-on" : ""}`;
-        likeBtn.textContent = "👍";
-        likeBtn.addEventListener("click", () => {
-          ratings[v.id] = ratings[v.id] === 1 ? 0 : 1;
-          recomputeWeights();
-          render();
-        });
-
-        const dislikeBtn = document.createElement("button");
-        dislikeBtn.type = "button";
-        dislikeBtn.className = `edu-yt-act${rating === -1 ? " is-dislike-on" : ""}`;
-        dislikeBtn.textContent = "👎";
-        dislikeBtn.addEventListener("click", () => {
-          ratings[v.id] = ratings[v.id] === -1 ? 0 : -1;
-          recomputeWeights();
-          render();
-        });
-
-        right.append(scoreEl, likeBtn, dislikeBtn);
-        item.append(info, right);
-
-        item.addEventListener("mouseenter", () => {
-          hoveredId = v.id;
-          drawSpace();
-        });
-        item.addEventListener("mouseleave", () => {
-          hoveredId = -1;
-          drawSpace();
-        });
-
-        feedList.appendChild(item);
+      if (prevAction) {
+        prevText.textContent = `이전: ${prevAction.title} (당시 점수 ${prevAction.score >= 0 ? "+" : ""}${prevAction.score.toFixed(2)})`;
+        prevBadge.style.display = "inline-block";
+        prevBadge.className = `edu-yt-prev-badge ${prevAction.vote === 1 ? "is-like" : "is-dislike"}`;
+        prevBadge.textContent = prevAction.vote === 1 ? "👍 좋아요" : "👎 싫어요";
+      } else {
+        prevText.textContent = "이전 평가: 아직 없음";
+        prevBadge.style.display = "none";
       }
 
       drawSpace();
     }
+
+    function handleVote(vote) {
+      const v = VIDEOS[currentId];
+      const prevScore = scoreVideo(v);
+      ratings[currentId] = vote;
+      prevAction = { title: v.title, vote, score: prevScore };
+      recomputeWeights();
+      currentId = pickNextVideo(currentId);
+      render();
+    }
+
+    likeBtn.addEventListener("click", () => handleVote(1));
+    dislikeBtn.addEventListener("click", () => handleVote(-1));
 
     canvas.addEventListener("mousemove", (e) => {
       const rect = canvas.getBoundingClientRect();
@@ -547,7 +592,9 @@
 
     resetBtn.addEventListener("click", () => {
       ratings.fill(0);
+      prevAction = null;
       recomputeWeights();
+      currentId = Math.floor(Math.random() * VIDEOS.length);
       render();
     });
 
