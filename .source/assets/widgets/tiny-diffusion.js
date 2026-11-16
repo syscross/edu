@@ -196,14 +196,19 @@
             steps: raw.steps,
             cond0: unpackLinear(raw.cond0),
             cond2: unpackLinear(raw.cond2),
-            conv1: unpackConv(raw.conv1),
-            proj1: unpackLinear(raw.proj1),
-            conv2: unpackConv(raw.conv2),
-            proj2: unpackLinear(raw.proj2),
-            conv3: unpackConv(raw.conv3),
-            proj3: unpackLinear(raw.proj3),
-            conv4: unpackConv(raw.conv4),
-            conv_out: unpackConv(raw.conv_out),
+            enc1: unpackConv(raw.enc1),
+            p_enc1: unpackLinear(raw.p_enc1),
+            enc2: unpackConv(raw.enc2),
+            p_enc2: unpackLinear(raw.p_enc2),
+            mid1: unpackConv(raw.mid1),
+            p_mid1: unpackLinear(raw.p_mid1),
+            mid2: unpackConv(raw.mid2),
+            p_mid2: unpackLinear(raw.p_mid2),
+            dec2: unpackConv(raw.dec2),
+            p_dec2: unpackLinear(raw.p_dec2),
+            dec1: unpackConv(raw.dec1),
+            p_dec1: unpackLinear(raw.p_dec1),
+            out: unpackConv(raw.out),
           };
         });
     }
@@ -234,47 +239,99 @@
     return arr;
   }
 
-  function conv3x3Forward(layer, x, extraBias) {
+  function conv3x3Forward(layer, x, H, W, extraBias) {
     const { inC, outC, w, b } = layer;
-    const out = new Float32Array(outC * 784);
+    const HW = H * W;
+    const out = new Float32Array(outC * HW);
     for (let oc = 0; oc < outC; oc++) {
       const baseBias = b[oc] + (extraBias ? extraBias[oc] : 0);
-      const outOff = oc * 784;
-      for (let i = 0; i < 784; i++) out[outOff + i] = baseBias;
+      const outOff = oc * HW;
+      for (let i = 0; i < HW; i++) out[outOff + i] = baseBias;
 
       for (let ic = 0; ic < inC; ic++) {
-        const inOff = ic * 784;
+        const inOff = ic * HW;
         const wOff = (oc * inC + ic) * 9;
         const w0 = w[wOff], w1 = w[wOff + 1], w2 = w[wOff + 2];
         const w3 = w[wOff + 3], w4 = w[wOff + 4], w5 = w[wOff + 5];
         const w6 = w[wOff + 6], w7 = w[wOff + 7], w8 = w[wOff + 8];
 
-        for (let r = 0; r < 28; r++) {
-          const rowOut = outOff + r * 28;
-          const rUp = r > 0 ? inOff + (r - 1) * 28 : -1;
-          const rMid = inOff + r * 28;
-          const rDn = r < 27 ? inOff + (r + 1) * 28 : -1;
+        for (let r = 0; r < H; r++) {
+          const rowOut = outOff + r * W;
+          const rUp = r > 0 ? inOff + (r - 1) * W : -1;
+          const rMid = inOff + r * W;
+          const rDn = r < H - 1 ? inOff + (r + 1) * W : -1;
 
-          for (let c = 0; c < 28; c++) {
+          for (let c = 0; c < W; c++) {
             let acc = 0;
             if (rUp >= 0) {
               if (c > 0) acc += w0 * x[rUp + c - 1];
               acc += w1 * x[rUp + c];
-              if (c < 27) acc += w2 * x[rUp + c + 1];
+              if (c < W - 1) acc += w2 * x[rUp + c + 1];
             }
             if (c > 0) acc += w3 * x[rMid + c - 1];
             acc += w4 * x[rMid + c];
-            if (c < 27) acc += w5 * x[rMid + c + 1];
+            if (c < W - 1) acc += w5 * x[rMid + c + 1];
             if (rDn >= 0) {
               if (c > 0) acc += w6 * x[rDn + c - 1];
               acc += w7 * x[rDn + c];
-              if (c < 27) acc += w8 * x[rDn + c + 1];
+              if (c < W - 1) acc += w8 * x[rDn + c + 1];
             }
             out[rowOut + c] += acc;
           }
         }
       }
     }
+    return out;
+  }
+
+  function avgPool2x2(x, C, H, W) {
+    const H2 = H >> 1;
+    const W2 = W >> 1;
+    const out = new Float32Array(C * H2 * W2);
+    for (let ch = 0; ch < C; ch++) {
+      const inOff = ch * H * W;
+      const outOff = ch * H2 * W2;
+      for (let r = 0; r < H2; r++) {
+        const r0 = inOff + r * 2 * W;
+        const r1 = r0 + W;
+        const oRow = outOff + r * W2;
+        for (let c = 0; c < W2; c++) {
+          const c0 = c * 2;
+          out[oRow + c] = 0.25 * (x[r0 + c0] + x[r0 + c0 + 1] + x[r1 + c0] + x[r1 + c0 + 1]);
+        }
+      }
+    }
+    return out;
+  }
+
+  function upsample2x(x, C, H, W) {
+    const H2 = H * 2;
+    const W2 = W * 2;
+    const out = new Float32Array(C * H2 * W2);
+    for (let ch = 0; ch < C; ch++) {
+      const inOff = ch * H * W;
+      const outOff = ch * H2 * W2;
+      for (let r = 0; r < H; r++) {
+        const inRow = inOff + r * W;
+        const oRow0 = outOff + r * 2 * W2;
+        const oRow1 = oRow0 + W2;
+        for (let c = 0; c < W; c++) {
+          const v = x[inRow + c];
+          const c0 = c * 2;
+          out[oRow0 + c0] = v;
+          out[oRow0 + c0 + 1] = v;
+          out[oRow1 + c0] = v;
+          out[oRow1 + c0 + 1] = v;
+        }
+      }
+    }
+    return out;
+  }
+
+  function concatChannels(a, b) {
+    const out = new Float32Array(a.length + b.length);
+    out.set(a, 0);
+    out.set(b, a.length);
     return out;
   }
 
@@ -290,18 +347,24 @@
     }
     const c = linearForward(model.cond2, siluInPlace(linearForward(model.cond0, condIn)));
 
-    const b1 = linearForward(model.proj1, c);
-    let h = siluInPlace(conv3x3Forward(model.conv1, x, b1));
+    const e1 = siluInPlace(conv3x3Forward(model.enc1, x, 28, 28, linearForward(model.p_enc1, c)));
+    const e2 = siluInPlace(
+      conv3x3Forward(model.enc2, avgPool2x2(e1, 24, 28, 28), 14, 14, linearForward(model.p_enc2, c))
+    );
 
-    const b2 = linearForward(model.proj2, c);
-    h = siluInPlace(conv3x3Forward(model.conv2, h, b2));
+    let m = siluInPlace(
+      conv3x3Forward(model.mid1, avgPool2x2(e2, 48, 14, 14), 7, 7, linearForward(model.p_mid1, c))
+    );
+    const m2 = siluInPlace(conv3x3Forward(model.mid2, m, 7, 7, linearForward(model.p_mid2, c)));
+    for (let i = 0; i < m.length; i++) m[i] += m2[i];
 
-    const b3 = linearForward(model.proj3, c);
-    const h3 = siluInPlace(conv3x3Forward(model.conv3, h, b3));
-    for (let i = 0; i < h.length; i++) h[i] += h3[i];
+    const u2 = concatChannels(upsample2x(m, 64, 7, 7), e2);
+    const d2 = siluInPlace(conv3x3Forward(model.dec2, u2, 14, 14, linearForward(model.p_dec2, c)));
 
-    h = siluInPlace(conv3x3Forward(model.conv4, h, null));
-    return conv3x3Forward(model.conv_out, h, null);
+    const u1 = concatChannels(upsample2x(d2, 48, 14, 14), e1);
+    const d1 = siluInPlace(conv3x3Forward(model.dec1, u1, 28, 28, linearForward(model.p_dec1, c)));
+
+    return conv3x3Forward(model.out, d1, 28, 28, null);
   }
 
   // Deterministic PRNG + Box-Muller Gaussian noise
